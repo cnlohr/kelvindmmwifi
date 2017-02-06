@@ -49,7 +49,7 @@ static void ICACHE_FLASH_ATTR procTask(os_event_t *events)
 //Timer event.
 static void ICACHE_FLASH_ATTR myTimer(void *arg)
 {
-	printf( "%d %d %d %08x %08x %08x  %08x %08x %08x\n", fxcycle, etx, erx, i2sBDRX[0], i2sBDRX[I2SDMABUFLEN], i2sBDRX[I2SDMABUFLEN*2], i2sBDTX[0], i2sBDTX[I2SDMABUFLEN], i2sBDTX[I2SDMABUFLEN*2] );
+	//printf( "%d %d %d %08x %08x\n", fxcycle, etx, erx, i2sBDRX[0], i2sBDRX[I2SDMABUFLEN-1] );
 
 	CSTick( 1 );
 }
@@ -72,7 +72,7 @@ void ICACHE_FLASH_ATTR charrx( uint8_t c )
 void ICACHE_FLASH_ATTR user_init(void)
 {
 	uart_init(BIT_RATE_115200, BIT_RATE_115200);
-
+	ets_delay_us(200000 );
 	uart0_sendStr("\r\nesp8266 ws2812 driver\r\n");
 
 //	int opm = wifi_get_opmode();
@@ -81,41 +81,8 @@ void ICACHE_FLASH_ATTR user_init(void)
 //Uncomment this to force a system restore.
 //	system_restore();
 
-//#define FORCE_SSID 1
-
-#ifdef FORCE_SSID
-#define SSID ""
-#define PSWD ""
-#endif
-
-	//Override wifi.
-#if FORCE_SSID
-	{
-		struct station_config stationConf;
-		wifi_station_get_config(&stationConf);
-		os_strcpy((char*)&stationConf.ssid, SSID );
-		os_strcpy((char*)&stationConf.password, PSWD );
-		stationConf.bssid_set = 0;
-		wifi_station_set_config(&stationConf);
-		wifi_set_opmode(1);
-	}
-#endif
-
 	CSSettingsLoad( 0 );
 	CSPreInit();
-
-	//Override wifi.
-#if FORCE_SSID
-	{
-		struct station_config stationConf;
-		wifi_station_get_config(&stationConf);
-		os_strcpy((char*)&stationConf.ssid, SSID );
-		os_strcpy((char*)&stationConf.password, PSWD );
-		stationConf.bssid_set = 0;
-		wifi_station_set_config(&stationConf);
-		wifi_set_opmode(1);
-	}
-#endif
 
     pUdpServer = (struct espconn *)os_zalloc(sizeof(struct espconn));
 	ets_memset( pUdpServer, 0, sizeof( struct espconn ) );

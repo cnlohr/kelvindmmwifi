@@ -695,4 +695,6 @@ F 3 "" H 2500 2200 60  0001 C CNN
 	1    2600 2300
 	0    1    1    0   
 $EndComp
+Text Notes 2200 1150 0    60   ~ 0
+Reference on DMM to IN-\nBUFF?  to IN+
 $EndSCHEMATC

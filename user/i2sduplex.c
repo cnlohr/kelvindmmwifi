@@ -12,8 +12,8 @@
 
 
 //These contol the speed at which the bus comms.
-#define WS_I2S_BCK 4  //Can't be less than 1.
-#define WS_I2S_DIV 4
+#define WS_I2S_BCK 8  //Can't be less than 1.
+#define WS_I2S_DIV 80000
 
 //I2S DMA buffer descriptors
 static struct sdio_queue i2sBufDescRX[DMABUFFERDEPTH];
@@ -44,6 +44,14 @@ LOCAL void slc_isr(void) {
 	if ( (slc_intr_status & SLC_TX_EOF_INT_ST))
 	{
 		finishedDesc=(struct sdio_queue*)READ_PERI_REG(SLC_TX_EOF_DES_ADDR);
+
+		uint32_t * data = finishedDesc->buf_ptr;
+		int i;
+		for( i = 0; i < I2SDMABUFLEN; i++ )
+		{
+			printf( "%1d", data[i]>>31 );
+		}
+
 		//finishedDesc=finishedDesc->next_link_ptr;
 
 		//Don't know why - but this MUST be done, otherwise everything comes to a screeching halt.
@@ -76,7 +84,7 @@ void ICACHE_FLASH_ATTR testi2s_init() {
 		i2sBufDescRX[x].next_link_ptr=(int)((x<(DMABUFFERDEPTH-1))?(&i2sBufDescRX[x+1]):(&i2sBufDescRX[0]));
 		for( y = 0; y < I2SDMABUFLEN; y++ )
 		{
-			i2sBDRX[y+x*I2SDMABUFLEN] = 0xAAAAAAAA;
+			i2sBDRX[y+x*I2SDMABUFLEN] = 0xaaaaaaaa;
 		}
 	}
 
@@ -91,7 +99,7 @@ void ICACHE_FLASH_ATTR testi2s_init() {
 		i2sBufDescTX[x].next_link_ptr=(int)((x<(DMABUFFERDEPTH-1))?(&i2sBufDescTX[x+1]):(&i2sBufDescTX[0]));
 		for( y = 0; y < I2SDMABUFLEN; y++ )
 		{
-			i2sBDTX[y+x*I2SDMABUFLEN] = 0xAAAAAAAA;
+			i2sBDTX[y+x*I2SDMABUFLEN] = 0x00000000;
 		}
 	}
 
